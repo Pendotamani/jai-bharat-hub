@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import logo from "../assets/college-logo.jpeg.asset.json";
 
 function NotFoundComponent() {
   return (
@@ -77,20 +78,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "Jai Bharat Junior College — Nakkalgutta, Hanamkonda" },
+      { name: "description", content: "Official portal of Jai Bharat Junior College, Nakkalgutta, Hanamkonda. Notices, resources, and student support." },
+      { name: "author", content: "Jai Bharat Junior College" },
+      { name: "theme-color", content: "#1e40af" },
+      { property: "og:title", content: "Jai Bharat Junior College" },
+      { property: "og:description", content: "Nakkalgutta, Hanamkonda — Intermediate education with notices, resources & student support." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "icon", type: "image/jpeg", href: logo.url },
+      { rel: "apple-touch-icon", href: logo.url },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
