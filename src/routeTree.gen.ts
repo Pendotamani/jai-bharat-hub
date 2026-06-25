@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as ResourcesRouteImport } from './routes/resources'
 import { Route as NoticesRouteImport } from './routes/notices'
 import { Route as JaiAiRouteImport } from './routes/jai-ai'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -30,6 +31,11 @@ const JaiAiRoute = JaiAiRouteImport.update({
   path: '/jai-ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
@@ -44,6 +50,7 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/jai-ai': typeof JaiAiRoute
   '/notices': typeof NoticesRoute
   '/resources': typeof ResourcesRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/jai-ai': typeof JaiAiRoute
   '/notices': typeof NoticesRoute
   '/resources': typeof ResourcesRoute
@@ -59,21 +67,30 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/admin': typeof AdminRoute
   '/jai-ai': typeof JaiAiRoute
   '/notices': typeof NoticesRoute
   '/resources': typeof ResourcesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/jai-ai' | '/notices' | '/resources'
+  fullPaths: '/' | '/about' | '/admin' | '/jai-ai' | '/notices' | '/resources'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about' | '/jai-ai' | '/notices' | '/resources'
-  id: '__root__' | '/' | '/about' | '/jai-ai' | '/notices' | '/resources'
+  to: '/' | '/about' | '/admin' | '/jai-ai' | '/notices' | '/resources'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/admin'
+    | '/jai-ai'
+    | '/notices'
+    | '/resources'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdminRoute: typeof AdminRoute
   JaiAiRoute: typeof JaiAiRoute
   NoticesRoute: typeof NoticesRoute
   ResourcesRoute: typeof ResourcesRoute
@@ -102,6 +119,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof JaiAiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about': {
       id: '/about'
       path: '/about'
@@ -122,6 +146,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdminRoute: AdminRoute,
   JaiAiRoute: JaiAiRoute,
   NoticesRoute: NoticesRoute,
   ResourcesRoute: ResourcesRoute,
