@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import { Layout } from "../components/Layout";
-import { Sparkles, Send } from "lucide-react";
+import { Sparkles, Send, Loader2 } from "lucide-react";
+import { chatWithJaiAi } from "../lib/jai-ai.functions";
 
 export const Route = createFileRoute("/jai-ai")({
   head: () => ({
@@ -19,18 +20,40 @@ type Msg = { role: "user" | "assistant"; text: string };
 
 function JaiAI() {
   const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", text: "Hi! I'm Jai.AI 👋 — AI chat is coming soon. You can type a question below to preview the interface." },
+    { role: "assistant", text: "Hi! I'm jai.ai 👋 — your college assistant. Ask me anything about studies, exams, or campus life." },
   ]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
 
-  function send(e: FormEvent) {
+  async function send(e: FormEvent) {
     e.preventDefault();
     const text = input.trim();
-    if (!text) return;
-    setMessages((m) => [...m, { role: "user", text }, { role: "assistant", text: "🚧 AI integration is coming soon. Your message has been received." }]);
+    if (!text || loading) return;
     setInput("");
+    const next: Msg[] = [...messages, { role: "user", text }];
+    setMessages(next);
+    setLoading(true);
+    try {
+      const history = next
+        .slice(-12)
+        .map((m) => ({ role: m.role, content: m.text }));
+      const result = await chatWithJaiAi({ data: { messages: history } });
+      if (result.ok) {
+        setMessages((m) => [...m, { role: "assistant", text: result.reply }]);
+      } else {
+        setMessages((m) => [...m, { role: "assistant", text: `⚠️ ${result.error}` }]);
+      }
+    } catch (err) {
+      setMessages((m) => [
+        ...m,
+        { role: "assistant", text: "⚠️ Something went wrong. Please try again." },
+      ]);
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -49,20 +72,28 @@ function JaiAI() {
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
               <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.role === "user" ? "bg-primary text-primary-foreground rounded-br-sm" : "bg-card border border-border rounded-bl-sm"}`}>
-                {m.text}
+                <span className="whitespace-pre-wrap">{m.text}</span>
               </div>
             </div>
           ))}
+          {loading && (
+            <div className="flex justify-start">
+              <div className="bg-card border border-border rounded-2xl rounded-bl-sm px-4 py-2 text-sm text-muted-foreground inline-flex items-center gap-2">
+                <Loader2 size={14} className="animate-spin" /> Thinking…
+              </div>
+            </div>
+          )}
           <div ref={endRef} />
         </div>
         <form onSubmit={send} className="mt-3 flex gap-2">
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask Jai.AI…"
-            className="flex-1 rounded-full border border-border bg-card px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            placeholder="Ask jai.ai…"
+            disabled={loading}
+            className="flex-1 rounded-full border border-border bg-card px-4 py-2.5 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:opacity-60"
           />
-          <button type="submit" className="bg-primary text-primary-foreground rounded-full px-4 py-2.5 font-medium flex items-center gap-1 hover:opacity-90">
+          <button type="submit" disabled={loading || !input.trim()} className="bg-primary text-primary-foreground rounded-full px-4 py-2.5 font-medium flex items-center gap-1 hover:opacity-90 disabled:opacity-60">
             <Send size={16} />
           </button>
         </form>
