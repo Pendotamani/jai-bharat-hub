@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect, useCallback, type FormEvent } from "react";
 import { Layout } from "../components/Layout";
-import { Sparkles, Send, Loader2, Menu, Trash2, History, X, Plus, ChevronRight } from "lucide-react";
+import { Sparkles, Send, Loader2, Menu, Trash2, History, X, Plus } from "lucide-react";
 import { chatWithJaiAi } from "../lib/jai-ai.functions";
 
 export const Route = createFileRoute("/jai-ai")({
@@ -140,12 +140,16 @@ function ChatBubble({ msg }: { msg: Msg }) {
 function HistoryPanel({
   history,
   onOpen,
+  onDelete,
   onClose,
 }: {
   history: SavedChat[];
   onOpen: (chat: SavedChat) => void;
+  onDelete: (id: string) => void;
   onClose: () => void;
 }) {
+  const [confirmId, setConfirmId] = useState<string | null>(null);
+
   return (
     <div className="fixed inset-0 z-50 flex">
       {/* Backdrop */}
@@ -162,24 +166,58 @@ function HistoryPanel({
         </div>
         <div className="flex-1 overflow-y-auto divide-y divide-gray-50">
           {history.length === 0 ? (
-            <div className="p-6 text-center text-sm text-gray-400">
-              No previous chats yet.
+            <div className="p-8 text-center">
+              <History size={32} className="text-gray-200 mx-auto mb-3" />
+              <p className="text-sm text-gray-400">No previous chats yet.</p>
+              <p className="text-xs text-gray-300 mt-1">Start a conversation to see it here.</p>
             </div>
           ) : (
             [...history]
               .reverse()
               .map((chat) => (
-                <button
-                  key={chat.id}
-                  onClick={() => { onOpen(chat); onClose(); }}
-                  className="w-full text-left px-4 py-3 hover:bg-indigo-50 transition-colors flex items-center justify-between gap-2"
-                >
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">{chat.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">{formatDate(chat.savedAt)}</p>
-                  </div>
-                  <ChevronRight size={14} className="text-gray-300 flex-shrink-0" />
-                </button>
+                <div key={chat.id} className="relative group">
+                  {confirmId === chat.id ? (
+                    /* ── Confirm delete row ── */
+                    <div className="flex items-center gap-2 px-4 py-3 bg-red-50">
+                      <p className="text-xs text-red-600 flex-1">Delete this chat?</p>
+                      <button
+                        onClick={() => {
+                          onDelete(chat.id);
+                          setConfirmId(null);
+                        }}
+                        className="text-xs font-semibold text-white bg-red-500 rounded-lg px-3 py-1.5 hover:bg-red-600 transition-colors"
+                      >
+                        Delete
+                      </button>
+                      <button
+                        onClick={() => setConfirmId(null)}
+                        className="text-xs font-medium text-gray-500 bg-gray-100 rounded-lg px-3 py-1.5 hover:bg-gray-200 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    /* ── Normal chat row ── */
+                    <div className="flex items-center gap-1 px-3 py-3 hover:bg-indigo-50 transition-colors">
+                      {/* Open chat button */}
+                      <button
+                        onClick={() => { onOpen(chat); onClose(); }}
+                        className="flex-1 text-left min-w-0"
+                      >
+                        <p className="text-sm font-medium text-gray-800 truncate pr-1">{chat.title}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{formatDate(chat.savedAt)}</p>
+                      </button>
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmId(chat.id); }}
+                        className="flex-shrink-0 p-2 rounded-xl text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                        aria-label="Delete chat"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  )}
+                </div>
               ))
           )}
         </div>
@@ -371,6 +409,19 @@ function JaiAI() {
     setMessages(chat.messages);
   }
 
+  // ── Delete a single history chat ──────────────────────────────────────────
+  function deleteHistoryChat(id: string) {
+    const updated = history.filter((c) => c.id !== id);
+    saveHistory(updated);
+    setHistory(updated);
+    if (id === currentId) {
+      const newId = generateId();
+      setCurrentId(newId);
+      setMessages([{ ...WELCOME, ts: Date.now() }]);
+      localStorage.removeItem(STORAGE_CURRENT);
+    }
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
 
   return (
@@ -459,6 +510,7 @@ function JaiAI() {
         <HistoryPanel
           history={history}
           onOpen={openHistoryChat}
+          onDelete={deleteHistoryChat}
           onClose={() => setShowHistory(false)}
         />
       )}
