@@ -8,15 +8,22 @@ export const Route = createFileRoute("/notices")({
   head: () => ({
     meta: [
       { title: "Notices — Jai Bharat Junior College" },
-      { name: "description", content: "Latest announcements and notices from Jai Bharat Junior College, posted in real time." },
-      { property: "og:title", content: "Notices — Jai Bharat Junior College" },
-      { property: "og:description", content: "Real-time notices and announcements." },
+      {
+        name: "description",
+        content:
+          "Latest announcements and notices from Jai Bharat Junior College.",
+      },
     ],
   }),
   component: NoticesPage,
 });
 
-type Notice = { id: string; title: string; body: string; createdAt: number };
+type Notice = {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: number;
+};
 
 function NoticesPage() {
   const [notices, setNotices] = useState<Notice[] | null>(null);
@@ -24,65 +31,101 @@ function NoticesPage() {
 
   useEffect(() => {
     let unsub: (() => void) | undefined;
+
     (async () => {
       try {
         const { getFirebase } = await import("../lib/firebase");
-        const { collection, onSnapshot, orderBy, query } = await import("firebase/firestore");
+        const { collection, query, orderBy, onSnapshot } = await import(
+          "firebase/firestore"
+        );
+
         const { db } = getFirebase();
-        const q = query(collection(db, "notices"), orderBy("createdAt", "desc"));
+
+        const q = query(
+          collection(db, "notices"),
+          orderBy("createdAt", "desc")
+        );
+
         unsub = onSnapshot(
           q,
-          (snap) => {
+          (snapshot) => {
             setNotices(
-              snap.docs.map((d) => {
-                const data = d.data() as { title?: string; body?: string; createdAt?: { toMillis?: () => number } | number };
-                const ts = data.createdAt;
-                const createdAt = typeof ts === "number" ? ts : ts?.toMillis?.() ?? Date.now();
-                return { id: d.id, title: data.title ?? "", body: data.body ?? "", createdAt };
-              }),
+              snapshot.docs.map((doc) => {
+                const data = doc.data() as any;
+
+                const createdAt =
+                  typeof data.createdAt === "number"
+                    ? data.createdAt
+                    : data.createdAt?.toMillis?.() ?? Date.now();
+
+                return {
+                  id: doc.id,
+                  title: data.title ?? "",
+                  description: data.description ?? data.body ?? "",
+                  createdAt,
+                };
+              })
             );
           },
-          (err) => setError(err.message),
+          (err) => setError(err.message)
         );
-      } catch (e) {
-        setError(e instanceof Error ? e.message : String(e));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : String(err));
       }
     })();
+
     return () => unsub?.();
   }, []);
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto px-4 py-8">
+
         <div className="flex items-center gap-3 mb-6">
           <Bell className="text-primary" size={28} />
-          <h1 className="text-2xl sm:text-3xl font-bold">Notices</h1>
+          <h1 className="text-3xl font-bold">Notices</h1>
         </div>
+
         {error && (
-          <div className="rounded-md bg-destructive/10 text-destructive text-sm p-3 mb-4">
-            Could not load notices: {error}
+          <div className="rounded-md bg-red-100 text-red-700 p-3 mb-4">
+            {error}
           </div>
         )}
+
         {notices === null && !error && (
-          <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="animate-spin" size={18} /> Loading notices…</div>
-        )}
-        {notices && notices.length === 0 && (
-          <div className="text-center py-16 text-muted-foreground bg-secondary rounded-xl">
-            <Bell className="mx-auto mb-2 opacity-50" size={32} />
-            No notices yet. Check back soon.
+          <div className="flex items-center gap-2">
+            <Loader2 className="animate-spin" size={18} />
+            Loading notices...
           </div>
         )}
-        <div className="space-y-3">
-          {notices?.map((n) => (
-            <article key={n.id} className="bg-card border border-border rounded-xl p-4 shadow-sm hover:shadow-md transition">
-              <h2 className="font-semibold text-lg text-primary">{n.title}</h2>
-              <p className="mt-1 text-sm text-foreground whitespace-pre-wrap">{n.body}</p>
-              <div className="mt-2 text-xs text-muted-foreground">
-                {new Date(n.createdAt).toLocaleString()}
+
+        {notices && notices.length === 0 && (
+          <div className="text-center py-10 text-gray-500">
+            No notices available.
+          </div>
+        )}
+
+        <div className="space-y-4">
+          {notices?.map((notice) => (
+            <article
+              key={notice.id}
+              className="border rounded-xl p-5 shadow-sm bg-card"
+            >
+              <h2 className="text-xl font-bold text-primary">
+                {notice.title}
+              </h2>
+
+              <p className="mt-3 text-sm whitespace-pre-wrap text-foreground">
+                {notice.description}
+              </p>
+
+              <div className="mt-4 text-xs text-muted-foreground">
+                {new Date(notice.createdAt).toLocaleString()}
               </div>
             </article>
           ))}
         </div>
+
       </div>
     </Layout>
   );
