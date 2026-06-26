@@ -1,6 +1,6 @@
 import { getFirebase, FCM_VAPID_KEY } from "./firebase";
 
-const LOGO_ICON = "/__l5e/assets-v1/d5019651-1c85-4326-b4f0-93939e88ff93/college-logo.jpeg";
+const LOGO_ICON = "/output-smallpngtools.png";
 
 /**
  * Request notification permission, get the FCM token, store it in Firestore
