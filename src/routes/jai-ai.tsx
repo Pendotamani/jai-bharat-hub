@@ -1,7 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useRef, useEffect, type FormEvent } from "react";
 import { Layout } from "../components/Layout";
-import { Sparkles, Send, Loader2 } from "lucide-react";
+import {
+  Sparkles,
+  Send,
+  Loader2,
+  Menu,
+  Trash2,
+  History,
+  X,
+} from "lucide-react";
 import { chatWithJaiAi } from "../lib/jai-ai.functions";
 
 export const Route = createFileRoute("/jai-ai")({
@@ -28,7 +36,8 @@ function JaiAI() {
 
 const [messages, setMessages] = useState<Msg[]>(defaultMessages);
   const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+const [history, setHistory] = useState<Msg[][]>([]);
   const endRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
   const saved = localStorage.getItem("jai-ai-chat");
@@ -43,10 +52,41 @@ const [messages, setMessages] = useState<Msg[]>(defaultMessages);
 
 useEffect(() => {
   localStorage.setItem("jai-ai-chat", JSON.stringify(messages));
-  endRef.current?.scrollIntoView({ behavior: "smooth" });
-}, [messages, loading]);
 
-  async function send(e: FormEvent) {
+  const chats = JSON.parse(
+    localStorage.getItem("jai-ai-history") || "[]"
+  );
+
+  if (
+    messages.length > 1 &&
+    JSON.stringify(chats[chats.length - 1]) !== JSON.stringify(messages)
+  ) {
+    chats.push(messages);
+    localStorage.setItem(
+      "jai-ai-history",
+      JSON.stringify(chats)
+    );
+  }
+
+  setHistory(chats);
+
+  endRef.current?.scrollIntoView({
+    behavior: "smooth",
+  });
+}, [messages]);
+
+  function clearChat() {
+  localStorage.removeItem("jai-ai-chat");
+
+  setMessages([
+    {
+      role: "assistant",
+      text: "Hi! I'm jai.ai 👋 — your college assistant.",
+    },
+  ]);
+
+  setMenuOpen(false);
+}
     e.preventDefault();
     const text = input.trim();
     if (!text || loading) return;
