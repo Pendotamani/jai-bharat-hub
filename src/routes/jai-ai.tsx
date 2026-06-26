@@ -19,13 +19,32 @@ export const Route = createFileRoute("/jai-ai")({
 type Msg = { role: "user" | "assistant"; text: string };
 
 function JaiAI() {
-  const [messages, setMessages] = useState<Msg[]>([
-    { role: "assistant", text: "Hi! I'm jai.ai 👋 — your college assistant. Ask me anything about studies, exams, or campus life." },
-  ]);
+  const defaultMessages: Msg[] = [
+  {
+    role: "assistant",
+    text: "Hi! I'm jai.ai 👋 — your college assistant. Ask me anything about studies, exams, or campus life.",
+  },
+];
+
+const [messages, setMessages] = useState<Msg[]>(defaultMessages);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
+  useEffect(() => {
+  const saved = localStorage.getItem("jai-ai-chat");
+  if (saved) {
+    try {
+      setMessages(JSON.parse(saved));
+    } catch {
+      setMessages(defaultMessages);
+    }
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem("jai-ai-chat", JSON.stringify(messages));
+  endRef.current?.scrollIntoView({ behavior: "smooth" });
+}, [messages, loading]);
 
   async function send(e: FormEvent) {
     e.preventDefault();
