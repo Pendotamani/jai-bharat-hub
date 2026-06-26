@@ -4,15 +4,16 @@ import { useEffect, useState } from "react";
 import { Layout } from "../components/Layout";
 import { Splash } from "../components/Splash";
 import { Bell, BookOpen, Sparkles, MapPin, GraduationCap, Users, Award } from "lucide-react";
+import { COLLEGE_ADDRESS } from "../lib/constants";
 import { requestFcmToken } from "../lib/fcm";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Jai Bharat Junior College — Nakkalgutta, Hanamkonda" },
-      { name: "description", content: "Welcome to Jai Bharat Junior College. View live notices, study resources for First & Second Year, and connect with us." },
+      { title: "Jai Bharat Junior College — Hanamkonda" },
+      { name: "description", content: "Welcome to Jai Bharat Junior College. 19 years of excellence with 26+ experienced faculty. Live notices, study resources & more." },
       { property: "og:title", content: "Jai Bharat Junior College" },
-      { property: "og:description", content: "Nakkalgutta, Hanamkonda — Intermediate education with notices, resources & student support." },
+      { property: "og:description", content: "19 years of excellence. 26+ experienced faculty." },
     ],
   }),
   component: Index,
@@ -38,7 +39,7 @@ function Index() {
           <div className="max-w-6xl mx-auto px-4 py-12 sm:py-20 text-center">
             <h1 className="text-3xl sm:text-5xl font-bold leading-tight">Welcome to Jai Bharat Junior College</h1>
             <p className="mt-4 text-base sm:text-lg opacity-90 max-w-2xl mx-auto">
-              Empowering students with quality intermediate education in Nakkalgutta, Hanamkonda.
+              Empowering students for 19 years with quality intermediate education.
             </p>
             <div className="mt-6 flex flex-wrap gap-3 justify-center">
               <Link to="/notices" className="bg-white text-primary px-5 py-2.5 rounded-md font-semibold hover:bg-white/90 transition">View Notices</Link>
@@ -66,8 +67,8 @@ function Index() {
           <div className="max-w-6xl mx-auto px-4 py-12 grid sm:grid-cols-3 gap-6 text-center">
             {[
               { icon: GraduationCap, n: "1000+", l: "Students" },
-              { icon: Users, n: "50+", l: "Faculty" },
-              { icon: Award, n: "25+", l: "Years of Excellence" },
+              { icon: Users, n: "26+", l: "Experienced Faculty" },
+              { icon: Award, n: "19", l: "Years of Excellence" },
             ].map((s) => (
               <div key={s.l} className="bg-card p-6 rounded-xl shadow-sm">
                 <s.icon className="mx-auto text-primary" size={32} />
@@ -75,6 +76,16 @@ function Index() {
                 <div className="text-sm text-muted-foreground">{s.l}</div>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="max-w-6xl mx-auto px-4 pb-12">
+          <div className="rounded-2xl bg-card/70 backdrop-blur border border-border p-6 flex items-start gap-3">
+            <MapPin className="text-primary shrink-0" size={22} />
+            <div>
+              <div className="font-semibold">Visit Us</div>
+              <p className="text-sm text-muted-foreground mt-1">{COLLEGE_ADDRESS}</p>
+            </div>
           </div>
         </section>
       </Layout>

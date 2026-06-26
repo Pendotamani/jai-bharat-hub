@@ -79,19 +79,50 @@ function AdminPage() {
     await signOut(getFirebase().auth);
   }
 
+  const [pushStatus, setPushStatus] = useState<string | null>(null);
+
   async function addNotice(e: FormEvent) {
     e.preventDefault();
-    if (!title.trim()) return;
-    setCrudError(null); setBusy(true);
+    const t = title.trim();
+    const b = body.trim();
+    if (!t) return;
+    setCrudError(null);
+    setPushStatus(null);
+    setBusy(true);
     try {
       const { getFirebase } = await import("../lib/firebase");
-      const { addDoc, collection, serverTimestamp } = await import("firebase/firestore");
-      await addDoc(collection(getFirebase().db, "notices"), {
-        title: title.trim(),
-        body: body.trim(),
+      const { addDoc, collection, deleteDoc, doc, getDocs, serverTimestamp } = await import("firebase/firestore");
+      const { db } = getFirebase();
+      await addDoc(collection(db, "notices"), {
+        title: t,
+        body: b,
         createdAt: serverTimestamp(),
       });
       setTitle(""); setBody("");
+
+      // Send push notifications to all subscribed tokens
+      try {
+        const snap = await getDocs(collection(db, "fcm_tokens"));
+        const tokens = snap.docs.map((d) => d.id).filter((id) => id.length > 10);
+        if (tokens.length === 0) {
+          setPushStatus("Notice published. No subscribed devices yet.");
+        } else {
+          const { sendNoticeNotifications } = await import("../lib/notifications.functions");
+          const result = await sendNoticeNotifications({ data: { title: t, body: b, tokens, url: "/notices" } });
+          if (!result.ok) {
+            setPushStatus(`Notice published. Push: ${result.error}`);
+          } else {
+            setPushStatus(`Notice published. Sent ${result.sent} / ${tokens.length} push notifications.`);
+            // Best-effort cleanup of invalid tokens
+            for (const bad of result.invalidTokens ?? []) {
+              try { await deleteDoc(doc(db, "fcm_tokens", bad)); } catch { /* ignore */ }
+            }
+          }
+        }
+      } catch (pushErr) {
+        console.error(pushErr);
+        setPushStatus("Notice published. Push notification dispatch failed.");
+      }
     } catch (err) {
       setCrudError(err instanceof Error ? err.message : "Failed to add notice");
     } finally { setBusy(false); }
@@ -166,6 +197,7 @@ function AdminPage() {
           <input required placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full rounded-md border border-border px-3 py-2 text-sm" />
           <textarea placeholder="Notice details…" value={body} onChange={(e) => setBody(e.target.value)} rows={4} className="w-full rounded-md border border-border px-3 py-2 text-sm" />
           {crudError && <div className="text-sm text-destructive">{crudError}</div>}
+          {pushStatus && <div className="text-sm text-muted-foreground">{pushStatus}</div>}
           <button disabled={busy} className="bg-primary text-primary-foreground rounded-md px-4 py-2 text-sm font-medium hover:opacity-90 disabled:opacity-60">
             {busy ? "Publishing…" : "Publish Notice"}
           </button>

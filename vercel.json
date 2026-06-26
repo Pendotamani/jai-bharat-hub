@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/firebase-messaging-sw.js", "destination": "/firebase-messaging-sw.js" },
+    { "source": "/manifest.webmanifest", "destination": "/manifest.webmanifest" },
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
