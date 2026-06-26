@@ -22,8 +22,10 @@ const firstYearSubjects: Subject[] = [
   { name: "Mathematics B", pdfUrl: "https://drive.google.com/file/d/1e8RUb1wiEfInm9i5JgXDnhtXqghug4KG/view?usp=drive_link" },
   { name: "Economics", pdfUrl: "https://drive.google.com/file/d/1E4zsWfNrdy9zFWwG3LhuCx6T1dLo6E5T/view?usp=drive_link" },
   { name: "Political Science", pdfUrl: "https://drive.google.com/file/d/1B_h-N2UQ1wiFlHZO1jMIZUhQuNNPXiY-/view?usp=drive_link" },
-  { name: "Commerce", pdfUrl: "https://drive.google.com/file/d/1t-D2zbUabTlUZ6cv7m0yJq7BQe2D0jSZ/view?usp=drive_link" },
-  { name: "Accountancy", pdfUrl: "https://drive.google.com/file/d/1NNZsWS5NYq54Pk5f__TAVRRlpcec7LLj/view?usp=drive_link" },
+  {
+  name: "Commerce and Accountancy",
+  pdfUrl: "https://drive.google.com/file/d/1ilJnI3cU4TB6CCAi2tgvXKBGQt0uBqJo/view?usp=drivesdk",
+},
   { name: "Arabic", pdfUrl: "https://drive.google.com/file/d/1oWyMhvuwsHjSbpKDtD1HpECodfl6IB1n/view?usp=drive_link" },
   { name: "Urdu", pdfUrl: "https://drive.google.com/file/d/1yFybrIsvhQKn5aMmJTB7FBLhj6K3ZGWH/view?usp=drive_link" },
   { name: "English", pdfUrl: "https://drive.google.com/file/d/1NSz33W3RR9IArUFLJj4DEyxuUQOQfC1i/view?usp=drive_link" },
