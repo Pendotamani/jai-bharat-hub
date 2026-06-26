@@ -82,10 +82,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "description", content: "Official portal of Jai Bharat Junior College, Hanamkonda. Notices, resources, and student support." },
       { name: "author", content: "Jai Bharat Junior College" },
       { name: "theme-color", content: "#1e40af" },
-      { property: "og:title", content: "Jai Bharat Junior College" },
-      { property: "og:description", content: "Hanamkonda, Telangana — Intermediate education with notices, resources & student support." },
+      { property: "og:title", content: "Jai Bharat Junior College — Hanamkonda, Telangana" },
+      { property: "og:description", content: "Official portal of Jai Bharat Junior College, Hanamkonda. Notices, resources, and student support." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Jai Bharat Junior College — Hanamkonda, Telangana" },
+      { name: "twitter:description", content: "Official portal of Jai Bharat Junior College, Hanamkonda. Notices, resources, and student support." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/4e1a3ef5-1e86-488e-a5a6-33e241d6cc07" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/4e1a3ef5-1e86-488e-a5a6-33e241d6cc07" },
     ],
     links: [
       {
