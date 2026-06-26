@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Layout } from "../components/Layout";
 import { MapPin, Mail, GraduationCap, Users, Award } from "lucide-react";
-import logo from "../assets/college-logo.jpeg.asset.json";
+import logo from "../assets/output-smallpngtools.png";
 import { COLLEGE_ADDRESS, COLLEGE_EMAIL, COLLEGE_NAME } from "../lib/constants";
 
 export const Route = createFileRoute("/about")({
